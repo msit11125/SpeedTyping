@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超新打字王</title>
+    <link href="~/Content/css/materialize.min.css" rel="stylesheet" />
+    <link href="~/Content/fonts/material-icons.css" rel="stylesheet" />
+    <link href="~/Content/css/toastr.css" rel="stylesheet" />
+    @RenderSection("css", false)
+
+
+    <style>
+        html {
+            font-family: 'Microsoft JhengHei', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            background-color: #769f6e;
+            background-image: url( '@Url.Content("~/Content/images/tqc.png")' );
+            background-repeat: no-repeat;
+             /* Full height */
+            height: 100%; 
+
+            /* Center and scale the image nicely */
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            font-size: 12px !important;
+        }
+
+        .container {
+            margin: 1% 5%;
+            padding: 1% 3%;
+            width: 90%;
+            background-color: #fff;
+            max-width:none;
+        }
+
+        input {
+            margin-bottom: 0 !important;
+        }
+        .preloader-background {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffffff;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="preloader-background">
+        <div class="preloader-wrapper big active">
+            <div class="spinner-layer spinner-blue-only">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div>
+                <div class="gap-patch">
+                    <div class="circle"></div>
+                </div>
+                <div class="circle-clipper right">
+                    <div class="circle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+        @RenderBody()
+
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/materialize.min.js"></script>
+    <script src="~/Scripts/toastr.min.js"></script>
+    
+    <script>
+        $(document).ready(function () {
+            $('.preloader-background').fadeOut('slow');
+            $('.preloader-wrapper').fadeOut();
+        });
+    </script>
+    @RenderSection("scripts", false)
+
+</body>
+</html>

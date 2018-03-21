@@ -1,0 +1,33 @@
+﻿
+@{
+    ViewBag.Title = "Login";
+}
+
+<div class="valign-wrapper row login-box">
+    <div class="col card hoverable s10 pull-s1 m6 pull-m3 l4 pull-l4">
+        <form action="@Url.Action("Login","Account")" method="post">
+            <div class="card-content">
+                <span class="card-title">登入</span>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <label for="name">暱稱</label>
+                        <input type="text" class="validate" name="name" id="name" required />
+                    </div>
+                </div>
+            </div>
+            <div class="card-action right-align">
+                <input type="reset" id="reset" class="btn-flat grey-text waves-effect">
+                <input type="submit" class="btn green waves-effect waves-light" value="Login">
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        var error = @Html.Raw(Json.Encode(TempData["Info"]));
+        if (error) {
+            alert(error);
+        } 
+    </script>
+}

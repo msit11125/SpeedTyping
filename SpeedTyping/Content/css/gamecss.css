@@ -1,0 +1,56 @@
+﻿.title-room {
+    background-color: #233e6f;
+    color: white;
+    padding: 10px;
+}
+
+#userName {
+    display: none;
+    color: #3465a9;
+}
+
+#messageBox, #chatList {
+    float: left;
+    height: 500px;
+    width: 70%;
+    overflow: auto;
+}
+
+
+.message {
+    width: 100%;
+}
+
+#chatList {
+    margin: 0 0 1% 1%;
+    width: 29%;
+    overflow: auto;
+}
+
+#list li {
+    cursor: pointer;
+}
+
+#list {
+    list-style-type: circle;
+}
+
+#bar {
+    clear: both;
+}
+
+p {
+    margin: 0;
+}
+
+.type-textarea {
+    padding: 10px !important;
+    border: 1px solid #808080 ;
+    font-size:18px!important;
+}
+
+#quiz{
+    border:none;
+    width:80%;
+    resize:none;
+}
