@@ -10,7 +10,10 @@ namespace SpeedTyping.Hubs
     {
         public void SendMessage(string msg)
         {
-            Clients.All.getMessage(msg, Context.ConnectionId);
+            var id = Context.ConnectionId;
+            var speakerName = UserHandler.Users.Find(u => u.Id == id).Name;
+
+            Clients.All.getMessage(speakerName, msg, id);
         }
     }
 }

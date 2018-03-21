@@ -83,13 +83,13 @@
 }
 #chat-input {
   background: #f4f7f9;
-  width:100%; 
+  width:95%; 
   position:relative;
   height:47px;  
   padding-top:5px;
   /*padding-right:50px;*/
   padding-bottom:5px;
-  /*padding-left:15px;*/
+  padding-left:15px;
   border:none;
   resize:none;
   outline:none;

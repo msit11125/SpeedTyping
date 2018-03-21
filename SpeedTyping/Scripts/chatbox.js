@@ -3,11 +3,11 @@
 var INDEX = 0;
 
 function registerChatClientMethods(chatHub) {
-    chatHub.client.getMessage = function (msg, speakerId) {
+    chatHub.client.getMessage = function (speaker, msg, speakerId) {
         if ($.connection.hub.id == speakerId)
-            generate_message(msg, 'self');
+            generate_message(speaker, msg, 'self');
         else
-            generate_message(msg, 'user');
+            generate_message(speaker, msg, 'user');
     }
 }
 
@@ -23,12 +23,12 @@ function registerChatEvent(chatHub) {
     })
 }
 
-function generate_message(msg, type) {
+function generate_message(speaker, msg, type) {
     INDEX++;
     var str = "";
     str += "<div id='cm-msg-" + INDEX + "' class=\"chat-msg " + type + "\">";
     str += "          <span class=\"msg-avatar\">";
-    str += username;
+    str += speaker;
     str += "          <\/span>";
     str += "          <div class=\"cm-msg-text\">";
     str += msg;
