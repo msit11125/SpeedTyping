@@ -12,6 +12,9 @@ namespace SpeedTyping
     [HubName("gameHub")]
     public class GameHub : Hub
     {
+
+
+
         public void OnConnected(string name)
         {
             var id = Context.ConnectionId;
@@ -47,12 +50,14 @@ namespace SpeedTyping
             {
                 GameHandler.Quiz = quiz;
 
-                if (HasChinese(quiz))
+                if (GameHandler.GameType == GameType.GrabWords)
+                    GameHandler.GameType = GameType.GrabWords;
+                else if (HasChinese(quiz))
                     GameHandler.GameType = GameType.ChineseType;
                 else
                     GameHandler.GameType = GameType.EnglishType;
             }
-                
+
             GameHandler.Times = times;
             Clients.All.refreshQuiz(GameHandler.Quiz, times);
         }
@@ -76,29 +81,50 @@ namespace SpeedTyping
             var id = Context.ConnectionId;
             var find = UserHandler.Users.FirstOrDefault(x => x.Id == Context.ConnectionId);
 
-            int score = 0;
+            int score = find.Game.Score;
 
             if (GameHandler.IsGameStarting) // 遊戲開始才進行判斷
             {
+                score = 0; // 分數初始計算
+
+                var gameLogic = new GameLogic();
                 var fullQuiz = GameHandler.FullQuiz;
 
                 switch (GameHandler.GameType)
                 {
                     case GameType.EnglishType:
-                        CaculateEnglishTypeScore(inputText, fullQuiz, out score);
+                        gameLogic.CaculateEnglishTypeScore(inputText, fullQuiz, out score);
                         if (score == 0)
                             inputText = ""; // 輸錯就從打
 
                         CheckWinner(find.Name, () => inputText.Length == fullQuiz.Length);
                         break;
                     case GameType.ChineseType:
-                        CaculateOthersTypeScore(inputText, fullQuiz, out score);
+                        gameLogic.CaculateOthersTypeScore(inputText, fullQuiz, out score);
 
                         CheckWinner(find.Name, () => inputText == fullQuiz);
                         break;
-                }
-                
+                    case GameType.GrabWords:
+                        string quiz = GameHandler.TempQuiz; // 目前的題目
+                        score = find.Game.Score; // 之前的成績
+                        gameLogic.CaculateGrabWordsScore(Convert.ToChar(inputText), GameHandler.Times, ref quiz, ref score);
+                        // 更新資料
+                        GameHandler.TempQuiz = quiz;
+                        find.Game.Score = score;
 
+                        //告知其他人單字被抓走
+                        Clients.All.removeWord(inputText , find.Id);
+
+                        // 確認遊戲是否結束 (單字被抓完)
+                        if (GameHandler.TempQuiz.Length == 0)
+                        {
+                            // 分數最高者為勝利者
+                            var winner = UserHandler.Users.OrderByDescending(u => u.Game.Score).First().Name;
+                            CheckWinner(winner, () => true);
+                        }
+                        inputText = ""; // 輸過的單字就刪掉
+                        break;
+                }
             }
 
             find.Game.InputText = inputText;
@@ -112,31 +138,8 @@ namespace SpeedTyping
         }
 
 
-        // 計算英文輸入邏輯分數
-        void CaculateEnglishTypeScore(string inputText, string fullQuiz, out int score)
-        {
-            int lastCharIndex = inputText.Length - 1;
-            char lastChar = inputText[lastCharIndex];
 
-            if (fullQuiz[lastCharIndex] == lastChar)
-                score = inputText.Length; // 對一個單字得1分
-            else
-                score = 0; // 錯一個單字就歸零
-        }
-
-        // 計算其他輸入邏輯分數
-        void CaculateOthersTypeScore(string inputText, string fullQuiz, out int score)
-        {
-            score = 0;
-            for(int i = 0; i <= inputText.Length - 1; i++)
-            {
-                if (inputText[i] == fullQuiz[i]) // 對一個單字得1分
-                    score+=1;
-            }
-        }
-
-
-        void CheckWinner(string winnername, Func<bool> checkWin)
+        public void CheckWinner(string winnername, Func<bool> checkWin)
         {
             // check if win the game
             if (checkWin())
@@ -147,10 +150,33 @@ namespace SpeedTyping
         }
 
 
+        //更換遊戲模式
+        public void ChangeGameMode(GameType type)
+        {
+            if (type == GameType.Null) // 登入取得遊戲模式而已
+            {
+                Clients.Caller.changeGameMode("已取得遊戲模式", GameHandler.GameType == GameType.GrabWords ? true : false);
+                return;
+            }
+
+            GameHandler.GameType = type;
+            Clients.All.changeGameMode("已更新遊戲模式", type == GameType.GrabWords ? true:false);
+
+            if (type == GameType.ChineseType || type == GameType.EnglishType)
+            {
+                RefreshQuiz(GameHandler.Quiz, GameHandler.Times);
+            }
+        }
+
         //遊戲開始
         public void StartGame()
         {
             GameHandler.IsGameStarting = true;
+            UserHandler.Users.ForEach(u => u.Game.Score = 0); // 分數重算
+
+            if (GameHandler.GameType == GameType.GrabWords)
+                GameHandler.TempQuiz = GameHandler.Quiz;
+
             Clients.All.gameStart();
         }
 
@@ -184,7 +210,8 @@ namespace SpeedTyping
                         UserHandler.Users
                         .OrderByDescending(p => p.Game.Score)
                         .ToList());
-                }else
+                }
+                else
                 {
                     // 沒人在房間內就中斷遊戲
                     StopGame();

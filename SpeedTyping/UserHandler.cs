@@ -19,12 +19,15 @@ namespace SpeedTyping
         public static GameType GameType = GameType.EnglishType; // 預設打字邏輯
         public static int Times = 1; // 預設重複次數
 
+        public static string TempQuiz = ""; // 儲存搶單字遊戲題目進度
+
         public static string FullQuiz
         {
             get
             {
                 return GameHandler.Quiz.Multiply(GameHandler.Times);
             }
+
         }
     }
 
@@ -55,7 +58,9 @@ namespace SpeedTyping
 
     public enum GameType
     {
-        EnglishType,
-        ChineseType
+        Null = 0,
+        EnglishType = 1,
+        ChineseType = 2,
+        GrabWords = 3,  // 搶單字
     }
 }

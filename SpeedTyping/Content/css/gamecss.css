@@ -11,7 +11,7 @@
 
 #messageBox, #chatList {
     float: left;
-    height: 500px;
+    height: 620px;
     width: 70%;
     overflow: auto;
 }
@@ -53,4 +53,10 @@ p {
     border:none;
     width:80%;
     resize:none;
+    height: 8rem;
+}
+
+.gamebackground{
+    opacity:0.94;
+
 }

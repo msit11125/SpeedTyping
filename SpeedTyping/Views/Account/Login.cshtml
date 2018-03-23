@@ -23,6 +23,16 @@
     </div>
 </div>
 
+@section css{
+    <style>
+        .login-box{
+            margin-top:15%;
+           
+        }
+        
+    </style>
+    }
+
 @section scripts{
     <script>
         var error = @Html.Raw(Json.Encode(TempData["Info"]));

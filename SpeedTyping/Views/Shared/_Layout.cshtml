@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>超新打字王</title>
+    <title>超級新打字王</title>
+    <link rel="shortcut icon" type="image/ico" href="~/Content/images/man.png" />
     <link href="~/Content/css/materialize.min.css" rel="stylesheet" />
     <link href="~/Content/fonts/material-icons.css" rel="stylesheet" />
     <link href="~/Content/css/toastr.css" rel="stylesheet" />
@@ -13,16 +14,16 @@
     <style>
         html {
             font-family: 'Microsoft JhengHei', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-            background-color: #769f6e;
+            background-color: #333;
             background-image: url( '@Url.Content("~/Content/images/tqc.png")' );
             background-repeat: no-repeat;
              /* Full height */
-            height: 100%; 
+            height: 100%;
 
             /* Center and scale the image nicely */
             background-position: center;
             background-repeat: no-repeat;
-            background-size: cover;
+            background-size: 100% 100%;
             font-size: 12px !important;
         }
 
@@ -68,12 +69,12 @@
             </div>
         </div>
     </div>
-        @RenderBody()
+    @RenderBody()
 
     <script src="~/Scripts/jquery-1.10.2.min.js"></script>
     <script src="~/Scripts/materialize.min.js"></script>
     <script src="~/Scripts/toastr.min.js"></script>
-    
+
     <script>
         $(document).ready(function () {
             $('.preloader-background').fadeOut('slow');

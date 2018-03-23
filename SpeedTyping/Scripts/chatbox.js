@@ -1,13 +1,19 @@
 ﻿// SignalR ChatHub
 
 var INDEX = 0;
+var ISOPEN = false;
 
 function registerChatClientMethods(chatHub) {
     chatHub.client.getMessage = function (speaker, msg, speakerId) {
         if ($.connection.hub.id == speakerId)
             generate_message(speaker, msg, 'self');
-        else
+        else {
+            if (!ISOPEN) // 沒開啟過對話視窗再開啟
+                $("#chat-circle").trigger('click');
+
             generate_message(speaker, msg, 'user');
+        }
+            
     }
 }
 
@@ -54,11 +60,13 @@ $(function () {
     $("#chat-circle").click(function () {
         $("#chat-circle").toggle('scale');
         $(".chat-box").toggle('scale');
+        ISOPEN = true;
     })
 
     $(".chat-box-toggle").click(function () {
         $("#chat-circle").toggle('scale');
         $(".chat-box").toggle('scale');
+        ISOPEN = false;
     })
 
 })

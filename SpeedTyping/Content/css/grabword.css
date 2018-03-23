@@ -1,0 +1,8 @@
+﻿.letter {
+    position: absolute;
+    font: bold 50px "Arial";
+    color: #cab48d;
+    text-shadow: #273540 -1px 1px 0,#273540 -2px 2px 0,#273540 -3px 3px 0,#273540 -4px 4px 0,#273540 -5px 5px 0,#273540 -6px 6px 0,#273540 -7px 7px 0,#273540 -8px 8px 0,#273540 -9px 9px 0;
+}
+
+    /*text-shadow: #273540 -1px 1px 0,#273540 -2px 2px 0,#273540 -3px 3px 0,#273540 -4px 4px 0,#273540 -5px 5px 0,#273540 -6px 6px 0,#273540 -7px 7px 0,#273540 -8px 8px 0,#273540 -9px 9px 0;*/

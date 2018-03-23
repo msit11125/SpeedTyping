@@ -3,8 +3,8 @@
     ViewBag.Title = "Index";
 }
 
-<div class="container">
-    <h2 class="title-room">超新打字王</h2>
+<div class="container gamebackground">
+    <h2 class="title-room">超級新打字王</h2>
     @Html.Hidden("username", (string)ViewBag.Username)
 
 
@@ -15,11 +15,15 @@
                 <li>
                     <div class="collapsible-header"><i class="material-icons">filter_drama</i>題目</div>
                     <div class="collapsible-body blue-text darken-4" style="font-size:16px;">
-                        <textarea type="text" id="quiz"></textarea>
+                        <textarea type="text" id="quiz" rows="4"></textarea>
                         <span class="right"> x <span id="times"></span>(重複次數)</span>
                         <br />
-                            <a class="waves-effect waves-light btn right" id="startGamebtn"><i class="material-icons left">play_arrow</i>開始遊戲</a>
-                            <a class="waves-effect waves-light btn red right hide" id="stopGamebtn"><i class="material-icons left">stop</i>停止</a><br />
+                        <p class="left">
+                            <input type="checkbox" id="grabWordMode" />
+                            <label for="grabWordMode">搶單字</label>
+                        </p>
+                        <a class="waves-effect waves-light btn right" id="startGamebtn"><i class="material-icons left">play_arrow</i>開始遊戲</a>
+                        <a class="waves-effect waves-light btn red right hide" id="stopGamebtn"><i class="material-icons left">stop</i>停止</a><br />
                     </div>
                 </li>
             </ul>
@@ -68,9 +72,6 @@
         <h3 id="winText"></h3>
         <img src="~/Content/images/winner.jpg" />
     </div>
-    <div class="modal-footer">
-        <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat green lighten-4">喔知道了</a>
-    </div>
 </div>
 <!-- Chat Box-->
 @Html.Partial("_PartialChatBox")
@@ -79,6 +80,7 @@
 @section css{
     <link href="~/Content/css/gamecss.css" rel="stylesheet" />
     <link href="~/Content/css/chatbox.css" rel="stylesheet" />
+    <link href="~/Content/css/grabword.css" rel="stylesheet" />
 }
 
 @section scripts{
@@ -88,6 +90,7 @@
     <script src="~/signalr/hubs"></script>
 
     <script src="~/Scripts/chatbox.js"></script>
+    <script src="~/Scripts/grabword.js"></script>
 
     <script>
 
@@ -105,13 +108,14 @@
 
         $(function () {
 
-            $('.modal').modal({
+            $('#modal1').modal({
                 dismissible: false
             });
+            $('#modal2').modal();
 
             registerClientMethods(gameHub);
             registerChatClientMethods(chatHub);
-
+            registerGrabWordClientMethod();
 
             $.connection.hub.start().done(function () {
                 gameHub.server.onConnected(username);
@@ -179,12 +183,19 @@
                 toastr.error(name + " 離開了");
             };
             //接收題目更新
-            gameHub.client.refreshQuiz = function (quiz, times) {
-                $("#quiz").text(quiz);
+            gameHub.client.refreshQuiz = function (newquiz, times) {
+                quiz = newquiz;
+                $("#quiz").val(newquiz);
                 $("#times").text(times);
-                $("#typingtext").attr('data-length', quiz.repeat(times).length);
-                $("#typingtext").characterCounter();
+                // IE無法使用repeat
+                //$("#typingtext").attr('data-length', newquiz.repeat(times).length);
+                //$("#typingtext").characterCounter();
                 toastr.info("題目更新囉!");
+            }
+            //接收遊戲模式變更
+            gameHub.client.changeGameMode = function (msg, checked) {
+                toastr.info(msg);
+                $('#grabWordMode').prop('checked', checked);
             }
             //接收遊戲開始了
             gameHub.client.gameStart = function () {
@@ -220,9 +231,9 @@
 
 
         function registerEvents(gameHub) {
-            //初始化題目
+            //初始化題目、遊戲類別
             gameHub.server.refreshQuiz(quiz, times);
-
+            gameHub.server.changeGameMode(0);
             // jquery 禁止copy
             $('#typingtext').bind('cut copy paste', function (e) {
                 e.preventDefault(); //disable cut,copy,paste
@@ -240,8 +251,19 @@
                 gameHub.server.stopGame();
             });
             $('#quiz').on('change', function () {
-                gameHub.server.refreshQuiz($(this).val(), times);
+                if(!isGameStart)
+                    gameHub.server.refreshQuiz($(this).val(), times);
             });
+
+            $('#grabWordMode').on('click', function () {
+                if(!isGameStart){
+                    if (this.checked) // 是否勾選
+                        gameHub.server.changeGameMode(3);
+                    else
+                        gameHub.server.changeGameMode(1);
+                }
+            });
+
 
         }
 
@@ -253,8 +275,15 @@
             $('#startGamebtn').toggleClass('hide');
             $('#stopGamebtn').toggleClass('hide');
 
-            var startTime = Date.now();
+            $("#grabWordMode").attr('disabled', true);
+            // 判斷是否是搶單字模式
+            if (document.getElementById("grabWordMode").checked) {
+                StartGrabWordGame(quiz, gameHub);
+            }
 
+
+
+            var startTime = Date.now();
             interval = setInterval(function () {
                 var elapsedTime = Date.now() - startTime;
                 document.getElementById("timer").innerHTML = (elapsedTime / 1000).toFixed(3);
@@ -272,6 +301,14 @@
             $('#stopGamebtn').toggleClass('hide');
 
             clearInterval(interval);
+
+            $("#grabWordMode").attr('disabled', false);
+            // 暫停搶單字模式
+            if (timechecker) {
+                if ($(".letter")){
+                    $(".letter").remove();
+                }
+            }
 
             $(".progress > div").toggleClass("determinate indeterminate");
         }
